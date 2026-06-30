@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Add / Update Book</title>
+    <style>
+
+        /* ── RESET ── */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f0f4f8;
+            min-height: 100vh;
+            display: flex;
+            align-items: flex-start;
+            justify-content: center;
+            padding: 48px 16px;
+        }
+
+        /* ── FORM CARD ── */
+        .form-card {
+            background-color: #ffffff;
+            border-radius: 14px;
+            box-shadow: 0 4px 24px rgba(0,0,0,0.10);
+            width: 100%;
+            max-width: 520px;
+            overflow: hidden;
+        }
+
+        /* ── CARD HEADER ── */
+        .form-card-header {
+            background-color: #1a237e;
+            padding: 26px 32px;
+        }
+
+        .form-card-header h2 {
+            color: #ffffff;
+            font-size: 20px;
+            font-weight: 700;
+            margin-bottom: 4px;
+        }
+
+        .form-card-header p {
+            color: #c5cae9;
+            font-size: 13px;
+        }
+
+        /* ── CARD BODY ── */
+        .form-card-body {
+            padding: 32px;
+        }
+
+        /* ── FIELD GROUP ── */
+        .field-group {
+            margin-bottom: 20px;
+        }
+
+        .field-group label {
+            display: block;
+            font-size: 13px;
+            font-weight: 600;
+            color: #374151;
+            margin-bottom: 7px;
+        }
+
+        .field-group input[type="text"],
+        .field-group input[type="number"],
+        .field-group select {
+            width: 100%;
+            padding: 10px 14px;
+            border: 1px solid #d1d5db;
+            border-radius: 7px;
+            font-size: 14px;
+            color: #1e293b;
+            background-color: #f9fafb;
+            outline: none;
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+
+        .field-group input:focus,
+        .field-group select:focus {
+            border-color: #1a237e;
+            box-shadow: 0 0 0 3px rgba(26,35,126,0.10);
+            background-color: #ffffff;
+        }
+
+        /* ── PRICE INPUT (Rs. prefix) ── */
+        .price-wrapper {
+            display: flex;
+            align-items: center;
+            border: 1px solid #d1d5db;
+            border-radius: 7px;
+            overflow: hidden;
+            background-color: #f9fafb;
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+
+        .price-wrapper:focus-within {
+            border-color: #1a237e;
+            box-shadow: 0 0 0 3px rgba(26,35,126,0.10);
+            background-color: #ffffff;
+        }
+
+        .price-prefix {
+            padding: 10px 13px;
+            background-color: #e8eaf6;
+            color: #3949ab;
+            font-weight: 700;
+            font-size: 15px;
+            border-right: 1px solid #d1d5db;
+        }
+
+        .price-wrapper input {
+            border: none !important;
+            box-shadow: none !important;
+            background: transparent !important;
+            width: 100%;
+            padding: 10px 14px;
+            font-size: 14px;
+            color: #1e293b;
+            outline: none;
+        }
+
+        /* ── RADIO (Availability) ── */
+        .radio-group {
+            display: flex;
+            gap: 28px;
+            margin-top: 4px;
+        }
+
+        .radio-option {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+        }
+
+        .radio-option input[type="radio"] {
+            width: 16px;
+            height: 16px;
+            accent-color: #1a237e;
+            cursor: pointer;
+        }
+
+        .radio-option.available { color: #1b5e20; }
+        .radio-option.issued    { color: #b71c1c; }
+
+        /* ── BUTTONS ── */
+        .form-actions {
+            display: flex;
+            gap: 12px;
+            margin-top: 28px;
+        }
+
+        .btn-save {
+            background-color: #1a237e;
+            color: #ffffff;
+            padding: 11px 28px;
+            border-radius: 7px;
+            font-size: 14px;
+            font-weight: 700;
+            border: none;
+            cursor: pointer;
+            transition: opacity 0.2s;
+        }
+
+        .btn-save:hover { opacity: 0.88; }
+
+        .btn-back {
+            background-color: transparent;
+            color: #475569;
+            padding: 11px 22px;
+            border-radius: 7px;
+            font-size: 14px;
+            font-weight: 600;
+            border: 1px solid #cbd5e1;
+            text-decoration: none;
+            transition: background-color 0.2s;
+        }
+
+        .btn-back:hover { background-color: #f1f5f9; }
+
+    </style>
+</head>
+<body>
+
+    <div class="form-card">
+
+        <!-- HEADER -->
+        <div class="form-card-header">
+            <h2>&#128218; Add / Update Book</h2>
+            <p>Fill in all the fields below and click Save</p>
+        </div>
+
+        <!-- BODY -->
+        <div class="form-card-body">
+
+            <form th:action="@{/save}" th:object="${book}" method="post">
+
+                <!-- CRITICAL: Hidden id for Edit to work -->
+                <input type="hidden" th:field="*{id}">
+
+                <!-- Title -->
+                <div class="field-group">
+                    <label>Book Title</label>
+                    <input type="text"
+                           th:field="*{title}"
+                           placeholder="e.g. Java: The Complete Reference">
+                </div>
+
+                <!-- Author -->
+                <div class="field-group">
+                    <label>Author</label>
+                    <input type="text"
+                           th:field="*{author}"
+                           placeholder="e.g. Herbert Schildt">
+                </div>
+
+                <!-- Type -->
+                <div class="field-group">
+                    <label>Type</label>
+                    <select th:field="*{genre}">
+                        <option value="">-- Select Type --</option>
+                        <option value="Programming">Programming</option>
+                        <option value="Database">Database</option>
+                        <option value="Computer Science">Computer Science</option>
+                        <option value="Networking">Networking</option>
+                        <option value="AI/ML">AI/ML</option>
+                        <option value="Systems">Systems</option>
+                        <option value="Mathematics">Mathematics</option>
+                        <option value="Other">Other</option>
+                    </select>
+                </div>
+
+                <!-- Price -->
+                <div class="field-group">
+                    <label>Price</label>
+                    <div class="price-wrapper">
+                        <span class="price-prefix">Rs.</span>
+                        <input type="number"
+                               th:field="*{price}"
+                               step="0.01"
+                               min="0"
+                               placeholder="e.g. 599">
+                    </div>
+                </div>
+
+                <!-- Availability -->
+                <div class="field-group">
+                    <label>Availability</label>
+                    <div class="radio-group">
+                        <label class="radio-option available">
+                            <input type="radio"
+                                   th:field="*{availability}"
+                                   value="Available">
+                            &#10003; Available
+                        </label>
+                        <label class="radio-option issued">
+                            <input type="radio"
+                                   th:field="*{availability}"
+                                   value="Issued">
+                            &#128100; Issued
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Buttons -->
+                <div class="form-actions">
+                    <button type="submit" class="btn-save">Save Book</button>
+                    <a href="/" class="btn-back">&#8592; Back</a>
+                </div>
+
+            </form>
+        </div>
+
+    </div>
+
+</body>
+</html>

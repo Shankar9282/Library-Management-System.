@@ -1,0 +1,571 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Book Management</title>
+    <style>
+
+        /* ── RESET ── */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f0f4f8;
+            color: #1e293b;
+            font-size: 15px;
+        }
+
+        a {
+            text-decoration: none;
+            color: inherit;
+        }
+
+        /* ── NAVBAR ── */
+        .navbar {
+            background-color: #1a237e;
+            padding: 16px 32px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .navbar h2 {
+            color: #ffffff;
+            font-size: 22px;
+            font-weight: 700;
+        }
+
+        .btn-add {
+            background-color: #fbc02d;
+            color: #1a237e;
+            padding: 9px 20px;
+            border-radius: 6px;
+            font-weight: 700;
+            font-size: 14px;
+            text-decoration: none;
+        }
+
+        .btn-add:hover {
+            background-color: #f9a825;
+        }
+
+        /* ── CONTAINER ── */
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 28px 24px;
+        }
+
+        /* ── DASHBOARD ── */
+        .dashboard {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+            margin-bottom: 28px;
+        }
+
+        .dash-card {
+            border-radius: 10px;
+            padding: 22px 24px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            color: #ffffff;
+        }
+
+        .dash-card.total     { background-color: #1a237e; }
+        .dash-card.available { background-color: #1b5e20; }
+        .dash-card.issued    { background-color: #b71c1c; }
+
+        .dash-label {
+            font-size: 13px;
+            opacity: 0.80;
+            margin-bottom: 6px;
+        }
+
+        .dash-count {
+            font-size: 38px;
+            font-weight: 700;
+            line-height: 1;
+        }
+
+        .dash-icon {
+            font-size: 40px;
+            opacity: 0.30;
+        }
+
+        /* ── SEARCH CARD ── */
+        .search-card {
+            background-color: #ffffff;
+            border-radius: 10px;
+            padding: 20px 24px;
+            margin-bottom: 24px;
+            box-shadow: 0 1px 6px rgba(0,0,0,0.07);
+        }
+
+        .search-card form {
+            display: flex;
+            align-items: flex-end;
+            gap: 16px;
+            flex-wrap: wrap;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+            flex: 1;
+            min-width: 150px;
+        }
+
+        .form-group label {
+            font-size: 11px;
+            font-weight: 700;
+            color: #64748b;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .form-group input,
+        .form-group select {
+            padding: 9px 12px;
+            border: 1px solid #cbd5e1;
+            border-radius: 6px;
+            font-size: 14px;
+            color: #1e293b;
+            background-color: #f8fafc;
+            outline: none;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus {
+            border-color: #1a237e;
+            box-shadow: 0 0 0 3px rgba(26,35,126,0.10);
+            background-color: #ffffff;
+        }
+
+        .search-btns {
+            display: flex;
+            gap: 8px;
+            padding-bottom: 1px;
+        }
+
+        .btn-search {
+            background-color: #1a237e;
+            color: #ffffff;
+            padding: 9px 20px;
+            border: none;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        .btn-search:hover { opacity: 0.88; }
+
+        .btn-clear {
+            background-color: transparent;
+            color: #475569;
+            padding: 9px 14px;
+            border: 1px solid #94a3b8;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: 500;
+            text-decoration: none;
+        }
+
+        .btn-clear:hover { background-color: #f1f5f9; }
+
+        /* ── TABLE WRAPPER ── */
+        .table-wrapper {
+            background-color: #ffffff;
+            border-radius: 10px;
+            margin-bottom: 24px;
+            box-shadow: 0 1px 6px rgba(0,0,0,0.07);
+            overflow: hidden;
+        }
+
+        .table-header {
+            display: flex;
+            justify-content: space-between;
+            padding: 14px 20px;
+            border-bottom: 1px solid #e2e8f0;
+            font-size: 13px;
+            color: #64748b;
+        }
+
+        /* ── TABLE ── */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        thead tr {
+            background-color: #1a237e;
+        }
+
+        thead th {
+            padding: 13px 16px;
+            color: #ffffff;
+            font-size: 13px;
+            font-weight: 600;
+            text-align: left;
+            white-space: nowrap;
+        }
+
+        thead th a {
+            color: #ffffff;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            font-weight: 600;
+            font-size: 13px;
+        }
+
+        thead th a:hover { color: #c5cae9; }
+
+        tbody tr {
+            border-bottom: 1px solid #f1f5f9;
+            transition: background-color 0.15s;
+        }
+
+        tbody tr:hover { background-color: #e8eaf6; }
+
+        tbody tr:last-child { border-bottom: none; }
+
+        tbody td {
+            padding: 12px 16px;
+            font-size: 14px;
+            color: #1e293b;
+        }
+
+        /* ── BADGES ── */
+        .badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .badge-available {
+            background-color: #c8e6c9;
+            color: #1b5e20;
+        }
+
+        .badge-issued {
+            background-color: #ffcdd2;
+            color: #b71c1c;
+        }
+
+        .badge-type {
+            background-color: #e8eaf6;
+            color: #3949ab;
+            border-radius: 4px;
+            padding: 3px 10px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        /* ── ACTION BUTTONS ── */
+        .btn-edit {
+            background-color: #e3f2fd;
+            color: #1565c0;
+            border: 1px solid #90caf9;
+            padding: 5px 12px;
+            border-radius: 5px;
+            font-size: 13px;
+            font-weight: 600;
+            text-decoration: none;
+            margin-right: 4px;
+        }
+
+        .btn-edit:hover { background-color: #bbdefb; }
+
+        .btn-delete {
+            background-color: #ffebee;
+            color: #c62828;
+            border: 1px solid #ef9a9a;
+            padding: 5px 12px;
+            border-radius: 5px;
+            font-size: 13px;
+            font-weight: 600;
+            text-decoration: none;
+        }
+
+        .btn-delete:hover { background-color: #ffcdd2; }
+
+        /* ── NO RESULTS ROW ── */
+        .empty-row td {
+            text-align: center;
+            padding: 48px;
+            color: #94a3b8;
+            font-size: 15px;
+        }
+
+        /* ── PAGINATION ── */
+        .pagination {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            margin-bottom: 40px;
+        }
+
+        .page-link {
+            display: inline-block;
+            padding: 8px 14px;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: 500;
+            color: #1a237e;
+            background-color: #ffffff;
+            border: 1px solid #c7d2fe;
+            text-decoration: none;
+            transition: background-color 0.15s;
+        }
+
+        .page-link:hover   { background-color: #e8eaf6; }
+
+        .page-info {
+            font-size: 13px;
+            color: #64748b;
+            padding: 0 6px;
+        }
+
+    </style>
+</head>
+<body>
+
+<!-- NAVBAR -->
+<nav class="navbar">
+    <h2>&#128218; Book Management System</h2>
+    <a th:href="@{/add}" class="btn-add">+ Add New Book</a>
+</nav>
+
+<div class="container">
+
+    <!-- DASHBOARD -->
+    <div class="dashboard">
+
+        <div class="dash-card total">
+            <div>
+                <div class="dash-label">Total Books</div>
+                <div class="dash-count" th:text="${totalBooks}">0</div>
+            </div>
+            <div class="dash-icon">&#128218;</div>
+        </div>
+
+        <div class="dash-card available">
+            <div>
+                <div class="dash-label">Available</div>
+                <div class="dash-count" th:text="${availableBooks}">0</div>
+            </div>
+            <div class="dash-icon">&#10003;</div>
+        </div>
+
+        <div class="dash-card issued">
+            <div>
+                <div class="dash-label">Issued</div>
+                <div class="dash-count" th:text="${issuedBooks}">0</div>
+            </div>
+            <div class="dash-icon">&#128100;</div>
+        </div>
+
+    </div>
+
+    <!-- SEARCH & FILTER -->
+    <div class="search-card">
+        <form th:action="@{/}" method="get">
+
+            <div class="form-group">
+                <label>Search</label>
+                <input type="text"
+                       name="search"
+                       th:value="${search}"
+                       placeholder="Title or Author...">
+            </div>
+
+            <div class="form-group">
+                <label>Type</label>
+                <select name="genre">
+                    <option value="">All Types</option>
+                    <option th:each="g : ${genres}"
+                            th:value="${g}"
+                            th:text="${g}"
+                            th:selected="${g == genre}">
+                    </option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label>Status</label>
+                <select name="availability">
+                    <option value="">All</option>
+                    <option value="Available"
+                            th:selected="${availability == 'Available'}">
+                        Available
+                    </option>
+                    <option value="Issued"
+                            th:selected="${availability == 'Issued'}">
+                        Issued
+                    </option>
+                </select>
+            </div>
+
+            <input type="hidden" name="sortField" th:value="${sortField}">
+            <input type="hidden" name="sortDir"   th:value="${sortDir}">
+
+            <div class="search-btns">
+                <button type="submit" class="btn-search">Search</button>
+                <a th:href="@{/}" class="btn-clear">Clear</a>
+            </div>
+
+        </form>
+    </div>
+
+    <!-- TABLE -->
+    <div class="table-wrapper">
+
+        <div class="table-header">
+            <span>Showing <b th:text="${books.size()}">0</b>
+                  of <b th:text="${totalItems}">0</b> books</span>
+            <span>Page <b th:text="${currentPage + 1}">1</b>
+                  of <b th:text="${totalPages}">1</b></span>
+        </div>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>#</th>
+
+                    <th>
+                        <a th:href="@{/(search=${search}, genre=${genre},
+                                       availability=${availability},
+                                       sortField='title',
+                                       sortDir=${sortField == 'title' ?
+                                       reverseSortDir : 'asc'})}">
+                            Title
+                            <span th:if="${sortField == 'title'}"
+                                  th:text="${sortDir == 'asc'} ? '&#9650;' : '&#9660;'">
+                            </span>
+                        </a>
+                    </th>
+
+                    <th>
+                        <a th:href="@{/(search=${search}, genre=${genre},
+                                       availability=${availability},
+                                       sortField='author',
+                                       sortDir=${sortField == 'author' ?
+                                       reverseSortDir : 'asc'})}">
+                            Author
+                            <span th:if="${sortField == 'author'}"
+                                  th:text="${sortDir == 'asc'} ? '&#9650;' : '&#9660;'">
+                            </span>
+                        </a>
+                    </th>
+
+                    <th>Type</th>
+
+                    <th>
+                        <a th:href="@{/(search=${search}, genre=${genre},
+                                       availability=${availability},
+                                       sortField='price',
+                                       sortDir=${sortField == 'price' ?
+                                       reverseSortDir : 'asc'})}">
+                            Price
+                            <span th:if="${sortField == 'price'}"
+                                  th:text="${sortDir == 'asc'} ? '&#9650;' : '&#9660;'">
+                            </span>
+                        </a>
+                    </th>
+
+                    <th>Status</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+
+            <tbody>
+
+                <tr th:each="b, stat : ${books}">
+                    <td th:text="${(currentPage * 5) + stat.count}"
+                        style="color:#94a3b8; font-size:13px;">
+                    </td>
+                    <td th:text="${b.title}"
+                        style="font-weight:600;">
+                    </td>
+                    <td th:text="${b.author}"></td>
+                    <td>
+                        <span class="badge badge-type"
+                              th:text="${b.genre}">
+                        </span>
+                    </td>
+                    <td style="font-weight:600;"
+                        th:text="'Rs. ' + ${b.price}">
+                    </td>
+                    <td>
+                        <span th:class="${b.availability == 'Available'} ?
+                                        'badge badge-available' :
+                                        'badge badge-issued'"
+                              th:text="${b.availability}">
+                        </span>
+                    </td>
+                    <td>
+                        <a th:href="@{/edit/{id}(id=${b.id})}"
+                           class="btn-edit">Edit</a>
+                        <a th:href="@{/delete/{id}(id=${b.id})}"
+                           class="btn-delete"
+                           onclick="return confirm('Delete this book?')">
+                            Delete
+                        </a>
+                    </td>
+                </tr>
+
+                <tr th:if="${#lists.isEmpty(books)}" class="empty-row">
+                    <td colspan="7">
+                        &#128269; No books found.
+                    </td>
+                </tr>
+
+            </tbody>
+        </table>
+    </div>
+
+    <!-- PAGINATION -->
+    <div class="pagination">
+
+        <a th:if="${currentPage > 0}"
+           class="page-link"
+           th:href="@{/(page=${currentPage - 1}, search=${search},
+                       genre=${genre}, availability=${availability},
+                       sortField=${sortField}, sortDir=${sortDir})}">
+            &laquo; Prev
+        </a>
+
+        <a th:each="i : ${#numbers.sequence(0, totalPages - 1)}"
+           th:class="${i == currentPage} ? 'page-link active-page' : 'page-link'"
+           th:style="${i == currentPage} ?
+                     'background-color:#1a237e; color:#ffffff; border-color:#1a237e;' : ''"
+           th:text="${i + 1}"
+           th:href="@{/(page=${i}, search=${search}, genre=${genre},
+                       availability=${availability},
+                       sortField=${sortField}, sortDir=${sortDir})}">
+        </a>
+
+        <a th:if="${currentPage + 1 < totalPages}"
+           class="page-link"
+           th:href="@{/(page=${currentPage + 1}, search=${search},
+                       genre=${genre}, availability=${availability},
+                       sortField=${sortField}, sortDir=${sortDir})}">
+            Next &raquo;
+        </a>
+
+    </div>
+
+</div>
+</body>
+</html>
